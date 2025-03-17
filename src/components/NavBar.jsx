@@ -1,18 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Navbar = ({ cartCount, onCartClick }) => {
+const Navbar = ({ cartCount }) => {
     return (
-        <nav className="bg-cyan-500 p-4">
-            <div className="container mx-auto flex justify-between">
-                <h1 className="text-white text-2xl">E-commerce store</h1>
-               
-                <Link to='/cart'> <button
-                    onClick={onCartClick}
-                    className="text-white bg-green-500 p-2 rounded-lg"
-                >
+        <nav className="bg-gray-800 p-4 text-white flex justify-between items-center">
+            <Link to="/" className="text-2xl">E-commerce store</Link>
+            <div className="flex space-x-4">
+                <Link to="/" className="text-lg bg-blue-500 py-2 px-4 rounded">Home</Link>
+                <Link to="/cart" className="text-lg bg-blue-500 py-2 px-4 rounded">
                     Cart ({cartCount})
-                </button></Link>
+                </Link>
             </div>
         </nav>
     );

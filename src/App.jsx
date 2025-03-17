@@ -1,63 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import ProductList from './components/ProductList';
-import CartModal from './components/CartModal';
-import NoMatch from './components/NoMatch'
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/NavBar';
+import ProductPage from './pages/ProductPage';
+import CartPage from './pages/CartPage';
 
-function App() {
-  const [products, setProducts] = useState([]);
+const App = () => {
   const [cart, setCart] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const getProducts = async () => {
-    const response = await fetch('https://fakestoreapi.com/products');
-    const data = await response.json();
-    return data;
-  };
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await getProducts();
-      setProducts(data);
-    };
-    fetchProducts();
-  }, []);
 
   const addToCart = (product) => {
-    if (cart.some((item) => item.id === product.id)) {
-      alert('Item already added to the cart');
-      return;
+    const existingItem = cart.find((item) => item.id === product.id);
+    if (existingItem) {
+      setCart(cart.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      ));
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
     }
-    setCart([...cart, product]);
   };
 
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
+  const updateCartQuantity = (id, quantity) => {
+    setCart(cart.map((item) =>
+      item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+    ));
+  };
+
   return (
-    <div className="App">
-
-      <BrowserRouter>
-
-        <Navbar cartCount={cart.length} onCartClick={() => setIsModalOpen(true)} />
+    <Router>
+      <div className="min-h-screen bg-gray-100">
+        <Navbar cartCount={cart.length} />
 
         <Routes>
-
-          <Route path='/' element={<ProductList products={products} addToCart={addToCart} />} />
-
-          <Route path='/cart' element={
-            isModalOpen && (<CartModal cartItems={cart} onClose={() => setIsModalOpen(false)} removeFromCart={removeFromCart} />)
-            } />
-
-          <Route path='*' element={<NoMatch />} />
-
+          <Route
+            path="/"
+            element={<ProductPage addToCart={addToCart} removeFromCart={removeFromCart} cart={cart} />}
+          />
+          <Route
+            path="/cart"
+            element={<CartPage cart={cart} updateCartQuantity={updateCartQuantity} removeFromCart={removeFromCart} />}
+          />
         </Routes>
-      </BrowserRouter>
-
-    </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
